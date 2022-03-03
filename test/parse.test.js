@@ -3,7 +3,10 @@ const { parseCsv } = require("../index");
 
 describe("parsing", function () {
   it("parses empty input", function () {
-    expect(parseCsv("")).to.deep.equal([[""]]);
+    expect(parseCsv("")).to.deep.equal([]);
+  });
+  it("ignores trailing newline", function () {
+    expect(parseCsv("a,b,c\n")).to.deep.equal([["a", "b", "c"]]);
   });
   it("parses single record", function () {
     expect(parseCsv("a,b,c")).to.deep.equal([["a", "b", "c"]]);

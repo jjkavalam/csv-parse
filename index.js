@@ -1,3 +1,15 @@
+/*
+ * Grammar
+ * doc -> fieldset
+ *      | fieldset nl doc
+ *
+ * fieldset -> field
+ *           | field comma fieldset
+ *
+ * field -> quotedString
+ *        | unquotedString
+ */
+
 function parseCsv(s) {
   function log(...args) {
     // console.log("[debug]", ...args);
