@@ -1,13 +1,19 @@
 /*
  * Grammar
- * doc -> fieldset
+ * doc -> eof
+ *      | fieldset
  *      | fieldset nl doc
  *
- * fieldset -> field
- *           | field comma fieldset
+ * fieldset -> [endOfRecord]
+ *         | field [endOfRecord]
+ *         | field comma fieldset
+ *
+ * endOfRecord -> nl | eof
  *
  * field -> quotedString
  *        | unquotedString
+ *
+ * Note: [x] means to expect x, but do not advance.
  */
 
 function parseCsv(s) {
@@ -19,7 +25,7 @@ function parseCsv(s) {
     i = i + n;
     l1 = s[i] || "";
     l2 = s[i + 1] || "";
-    log("-- next", l1, l2);
+    log(`-- next: '${l1}' '${l2}'`);
   }
 
   let i = -1;
@@ -48,20 +54,30 @@ function parseCsv(s) {
 
   function acceptDoc() {
     log("doc", l1);
-    acceptFieldset();
-    if (l1 !== "") {
-      acceptNl();
+    if (l1 === "") {
+      acceptEof();
+    } else {
       rows.push([]);
-      acceptDoc();
+      acceptFieldset();
+      if (l1 === "\n") {
+        acceptNl();
+        acceptDoc();
+      }
     }
   }
 
   function acceptFieldset() {
     log("fieldset", l1);
-    acceptField();
-    if (l1 !== "" && l1 !== "\n") {
-      acceptComma();
-      acceptFieldset();
+    if (l1 === "" || l1 === "\n") {
+      // expected
+    } else {
+      acceptField();
+      if (l1 === "" || l1 === "\n") {
+        // expected
+      } else {
+        acceptComma();
+        acceptFieldset();
+      }
     }
   }
 
@@ -79,6 +95,11 @@ function parseCsv(s) {
     acceptQuote();
     // keep scanning until next lone quote is found
     acceptRestOfQuotedString();
+  }
+
+  function acceptEof() {
+    log("eof");
+    expect("");
   }
 
   function acceptNl() {
@@ -130,7 +151,7 @@ function parseCsv(s) {
     advance(m.index);
   }
 
-  let rows = [[]];
+  let rows = [];
   acceptDoc();
   return rows;
 }
