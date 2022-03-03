@@ -1,5 +1,5 @@
 {
-  "name": "csv-parse",
+  "name": "@jjkavalam/csv-parse",
   "version": "1.0.0",
   "description": "A CSV parser that accepts multiline strings as fields",
   "main": "index.js",
